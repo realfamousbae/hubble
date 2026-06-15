@@ -10,6 +10,7 @@
 
 Класс приложений — «web service aggregator» (аналоги: Ferdium, Rambox).
 
+![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange)
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![Electron](https://img.shields.io/badge/Electron-33-47848F)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -176,6 +177,22 @@ BrowserWindow (titleBarStyle:'hidden', webviewTag, contextIsolation, nodeIntegra
 > Requests**, а не по email — так обсуждение остаётся публичным и отслеживаемым.
 
 Конвенции кода: vanilla HTML/CSS/JS, без фреймворков. Комментарии в коде — на русском.
+
+---
+
+## История версий и версионирование
+
+Полный журнал изменений ведётся в [CHANGELOG.ru.md](CHANGELOG.ru.md). Текущая версия:
+**0.1.0-alpha** (первая альфа — рабочий MVP).
+
+- Changelog оформлен по формату [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
+  проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
+- Невыпущенные изменения копятся в разделе **[Unreleased]** под подзаголовками
+  (`Added` / `Changed` / `Fixed` / `Removed` / `Deprecated` / `Security`).
+- При релизе `[Unreleased]` переименовывается в `[X.Y.Z] - ГГГГ-ММ-ДД`, поле `version` в
+  `package.json` поднимается, а сверху заводится новый пустой `[Unreleased]`.
+
+Пожалуйста, фиксируйте каждое заметное изменение в changelog в составе своего pull request.
 
 ---
 

@@ -11,6 +11,7 @@ launches.
 
 Application class — *web service aggregator* (similar to Ferdium, Rambox).
 
+![Version](https://img.shields.io/badge/version-0.1.0--alpha-orange)
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![Electron](https://img.shields.io/badge/Electron-33-47848F)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -177,6 +178,22 @@ Contributions are welcome!
 > rather than by email — it keeps discussion public and trackable.
 
 Code conventions: vanilla HTML/CSS/JS, no frameworks. In-code comments are in Russian.
+
+---
+
+## Changelog & versioning
+
+The full version history is kept in [CHANGELOG.md](CHANGELOG.md). Current version:
+**0.1.0-alpha** (first alpha — working MVP).
+
+- The changelog follows the [Keep a Changelog](https://keepachangelog.com/) format, and the
+  project follows [Semantic Versioning](https://semver.org/).
+- Unreleased changes accumulate in the **[Unreleased]** section under headings
+  (`Added` / `Changed` / `Fixed` / `Removed` / `Deprecated` / `Security`).
+- On a release, `[Unreleased]` is renamed to `[X.Y.Z] - YYYY-MM-DD`, the `version` field in
+  `package.json` is bumped, and a fresh empty `[Unreleased]` is added on top.
+
+Please record every notable change in the changelog as part of your pull request.
 
 ---
 
