@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+release/
+dist/
+out/
+
+# Private / internal files (kept locally, not published)
+/context
+/scripts
+CLAUDE.md
+TASKS.md
+
+# Local app runtime data / settings
+settings.json
+.cache/
+
+# Local tooling
+.claude/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Screenshot harness output
+shot*.png

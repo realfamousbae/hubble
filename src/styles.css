@@ -1,0 +1,826 @@
+:root {
+  --bg: #11141b;
+  --tile-bg: #161a24;
+  --tile-header: #1b2030;
+  --text: #e8eaf0;
+  --text-dim: #8b93a7;
+
+  /* Фиолетовый «неон» для окантовки окон */
+  --neon: #b65cff;
+  --neon-strong: #d59bff;
+  --neon-rgb: 182, 92, 255;
+
+  /* Пилюля-таскбар (без «жидкого стекла» — плотный фон) */
+  --pill-bg: #1b1f2b;
+  --pill-border: rgba(255, 255, 255, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+}
+
+#app {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #1a1f2e 0%, var(--bg) 60%);
+}
+
+/* ----------------------------- Рабочая область --------------------------- */
+
+#workspace {
+  position: absolute;
+  inset: 0;
+}
+
+/* Контейнер тайлинга. Сверху — место под плеер, снизу — под пилюлю-таскбар. */
+#tiles {
+  position: absolute;
+  inset: 78px 6px 98px 6px;
+}
+
+/* ----------------------------- Плитки-окна ------------------------------- */
+
+.tile {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--tile-bg);
+  border: 1px solid rgba(var(--neon-rgb), 0.45);
+  box-shadow:
+    0 0 0 1px rgba(var(--neon-rgb), 0.18),
+    0 0 14px rgba(var(--neon-rgb), 0.28),
+    inset 0 0 16px rgba(var(--neon-rgb), 0.05);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  will-change: left, top, width, height;
+}
+
+/* Активное окно — ярче «горит» */
+.tile.focused {
+  border-color: var(--neon-strong);
+  box-shadow:
+    0 0 0 1px rgba(var(--neon-rgb), 0.55),
+    0 0 22px rgba(var(--neon-rgb), 0.55),
+    0 0 46px rgba(var(--neon-rgb), 0.22),
+    inset 0 0 18px rgba(var(--neon-rgb), 0.07);
+}
+
+/* Во время перетаскивания разделителя плавные переходы мешают — выключаем. */
+body.dragging .tile {
+  transition: none;
+}
+
+/* Индикатор зума (Ctrl +/−/0): кратко всплывает по центру сверху плитки. */
+.tile-zoom {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--neon-strong);
+  background: rgba(18, 20, 27, 0.92);
+  border: 1px solid rgba(var(--neon-rgb), 0.5);
+  box-shadow: 0 0 14px rgba(var(--neon-rgb), 0.4);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.tile-zoom.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tile-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 4px 0 10px;
+  background: var(--tile-header);
+  border-bottom: 1px solid rgba(var(--neon-rgb), 0.22);
+  cursor: default;
+}
+
+.tile-ico {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+
+.tile-ico.sidebar-icon-fallback,
+.sidebar-icon-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neon);
+  color: #fff;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.tile-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-actions {
+  display: flex;
+  gap: 1px;
+  flex: 0 0 auto;
+}
+
+.tile-btn {
+  width: 26px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tile-btn:hover:not(:disabled) {
+  background: rgba(var(--neon-rgb), 0.18);
+  color: var(--text);
+}
+
+.tile-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.tile-close:hover:not(:disabled) {
+  background: #e8484f;
+  color: #fff;
+}
+
+.tile-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #0e1016;
+}
+
+.tile-body webview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Тонкая неоновая полоска загрузки под шапкой */
+.tile-loadbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 3;
+  background: linear-gradient(90deg, transparent, var(--neon-strong), transparent);
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.tile.loading .tile-loadbar {
+  opacity: 1;
+  animation: loadbar 1s linear infinite;
+}
+
+@keyframes loadbar {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ----------------------------- Разделители ------------------------------- */
+
+.divider {
+  position: absolute;
+  z-index: 20;
+  display: block;
+}
+
+.divider.row {
+  cursor: col-resize;
+}
+
+.divider.col {
+  cursor: row-resize;
+}
+
+/* Видимая тонкая линия по центру зоны захвата */
+.divider::after {
+  content: '';
+  position: absolute;
+  background: rgba(var(--neon-rgb), 0.18);
+  border-radius: 2px;
+  transition: background 0.12s ease;
+}
+
+.divider.row::after {
+  left: 50%;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  transform: translateX(-50%);
+}
+
+.divider.col::after {
+  top: 50%;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.divider:hover::after,
+.divider.active::after {
+  background: var(--neon-strong);
+  box-shadow: 0 0 8px rgba(var(--neon-rgb), 0.7);
+}
+
+/* Щит, перекрывающий webview во время drag, чтобы мышь доходила до окна */
+#drag-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+}
+
+#drag-shield[hidden] {
+  display: none;
+}
+
+body.dragging #tiles webview {
+  pointer-events: none;
+}
+
+/* ----------------------------- Заглушка ---------------------------------- */
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+.empty-logo {
+  font-size: 52px;
+  filter: drop-shadow(0 0 14px rgba(var(--neon-rgb), 0.5));
+}
+
+.empty-state h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 24px;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ----------------------------- Пилюля-таскбар ---------------------------- */
+
+#taskbar {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: 999px;
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.55),
+    0 2px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  z-index: 100;
+  max-width: calc(100vw - 32px);
+}
+
+.taskbar-apps {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.taskbar-sep {
+  width: 1px;
+  height: 31px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 2px;
+}
+
+.taskbar-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 51px;
+  height: 51px;
+  border: none;
+  /* Скруглённый квадрат (squircle) — квадратные иконки-плитки больше не режутся
+     круглым кольцом по бокам, а круглые логотипы выглядят так же хорошо. */
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.18s ease;
+}
+
+.taskbar-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.taskbar-btn:active {
+  transform: scale(0.92);
+}
+
+/* Открытый сервис — лёгкая неоновая подсветка */
+.taskbar-btn.open {
+  background: rgba(var(--neon-rgb), 0.14);
+  box-shadow: inset 0 0 0 1px rgba(var(--neon-rgb), 0.45);
+}
+
+/* Активное окно — яркое неоновое кольцо */
+.taskbar-btn.focused {
+  background: rgba(var(--neon-rgb), 0.2);
+  box-shadow:
+    inset 0 0 0 1px var(--neon-strong),
+    0 0 16px rgba(var(--neon-rgb), 0.6);
+}
+
+.taskbar-icon {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  pointer-events: none;
+  border-radius: 11px;
+}
+
+.sidebar-icon-fallback {
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+  border-radius: 11px;
+}
+
+/* Точка-индикатор открытого окна под иконкой */
+.taskbar-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neon-strong);
+  box-shadow: 0 0 6px rgba(var(--neon-rgb), 0.9);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.taskbar-btn.open .taskbar-dot {
+  opacity: 1;
+}
+
+.taskbar-action {
+  font-size: 22px;
+  color: var(--text-dim);
+}
+
+.taskbar-action:hover {
+  color: var(--neon-strong);
+}
+
+/* ----------------------------- Titlebar (frameless) ---------------------- */
+
+#titlebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 0 12px;
+  z-index: 60;
+  -webkit-app-region: drag; /* за пустую зону можно тащить окно */
+}
+
+.tb-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.tb-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+}
+
+.tb-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.3px;
+}
+
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 120px;
+  justify-content: flex-end;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  width: 38px;
+  height: 30px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.win-btn:hover {
+  background: rgba(var(--neon-rgb), 0.18);
+  color: var(--text);
+}
+
+.win-close:hover {
+  background: #e8484f;
+  color: #fff;
+}
+
+/* ----------------------------- Системный плеер --------------------------- */
+
+#player {
+  /* Плавающая пилюля по центру сверху. Зазор до верхней стороны (20px) равен
+     зазору пилюли-таскбара до нижней стороны. */
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 101;
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  /* Та же неоновая окантовка, что и у окон */
+  border: 1px solid rgba(var(--neon-rgb), 0.45);
+  box-shadow:
+    0 0 0 1px rgba(var(--neon-rgb), 0.16),
+    0 0 12px rgba(var(--neon-rgb), 0.25);
+  transition: opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* Когда нигде не играет — плеер приглушён и неактивен. */
+#player.idle {
+  opacity: 0.45;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+#player.idle .player-btn,
+#player.idle .vol-range {
+  pointer-events: none;
+}
+
+/* Идёт воспроизведение — окантовка «горит» ярче. */
+#player.active {
+  border-color: var(--neon-strong);
+  box-shadow:
+    0 0 0 1px rgba(var(--neon-rgb), 0.5),
+    0 0 18px rgba(var(--neon-rgb), 0.55);
+}
+
+.player-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 10px;
+  letter-spacing: -1px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.player-btn:hover {
+  background: rgba(var(--neon-rgb), 0.22);
+  color: var(--neon-strong);
+}
+
+.player-pp {
+  color: var(--neon-strong);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.vol-ico {
+  color: var(--text);
+  letter-spacing: 0;
+}
+
+.vol-ico.muted {
+  color: var(--text-dim);
+}
+
+.vol-ico.muted .vol-wave {
+  opacity: 0;
+}
+
+.vol-ico.muted::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  top: 50%;
+  height: 1.6px;
+  background: currentColor;
+  transform: rotate(-45deg);
+}
+
+.player-vol {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.vol-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(var(--neon-rgb), 0.25);
+  outline: none;
+  cursor: pointer;
+}
+
+.vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--neon-strong);
+  box-shadow: 0 0 8px rgba(var(--neon-rgb), 0.8);
+  cursor: pointer;
+}
+
+/* ----------------------------- Drag-to-swap ------------------------------ */
+
+/* Плитка, по которой можно бросить перетаскиваемое окно */
+.tile.drop-target::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 2px dashed var(--neon-strong);
+  background: rgba(var(--neon-rgb), 0.14);
+  box-shadow: 0 0 22px rgba(var(--neon-rgb), 0.5) inset;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Во время перетаскивания окна шапка показывает «захват» */
+body.swapping {
+  cursor: grabbing;
+}
+
+body.swapping webview {
+  pointer-events: none;
+}
+
+.tile-header {
+  -webkit-app-region: no-drag;
+}
+
+/* ---------------------------------------------------------------------------
+   Пикер источника демонстрации экрана (getDisplayMedia, напр. Discord)
+   Модальный оверлей поверх всего, включая webview (DOM с высоким z-index
+   перекрывает webview — как индикатор зума .tile-zoom).
+   --------------------------------------------------------------------------- */
+.screen-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 9, 13, 0.62);
+  backdrop-filter: blur(3px);
+}
+
+.screen-picker[hidden] {
+  display: none;
+}
+
+.sp-dialog {
+  width: min(760px, 90vw);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  border-radius: 16px;
+  background: var(--tile-bg);
+  border: 1px solid rgba(var(--neon-rgb), 0.45);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(var(--neon-rgb), 0.16),
+    0 0 26px rgba(var(--neon-rgb), 0.28);
+}
+
+.sp-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sp-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.sp-source {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sp-source:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sp-source.selected {
+  border-color: rgba(var(--neon-rgb), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--neon-rgb), 0.5), 0 0 16px rgba(var(--neon-rgb), 0.4);
+  background: rgba(var(--neon-rgb), 0.12);
+}
+
+.sp-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #0c0e14;
+  display: block;
+}
+
+.sp-thumb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--text-dim);
+}
+
+.sp-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-name img {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+}
+
+.sp-audio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.sp-audio[hidden] {
+  display: none;
+}
+
+.sp-audio input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--neon);
+}
+
+.sp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sp-btn {
+  padding: 8px 18px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sp-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sp-primary {
+  background: rgba(var(--neon-rgb), 0.22);
+  border-color: rgba(var(--neon-rgb), 0.55);
+}
+
+.sp-primary:hover {
+  background: rgba(var(--neon-rgb), 0.32);
+  box-shadow: 0 0 16px rgba(var(--neon-rgb), 0.5);
+}
+
+.sp-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.05);
+}

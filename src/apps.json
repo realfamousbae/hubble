@@ -1,0 +1,125 @@
+{
+  "apps": [
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "url": "https://web.telegram.org/a/",
+      "icon": "assets/icons/telegram.svg",
+      "partition": "persist:telegram",
+      "userAgent": ""
+    },
+    {
+      "id": "weather",
+      "name": "Погода",
+      "url": "https://yandex.ru/pogoda/",
+      "icon": "assets/icons/weather.svg",
+      "partition": "persist:weather",
+      "userAgent": ""
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "url": "https://www.youtube.com/",
+      "icon": "assets/icons/youtube.svg",
+      "partition": "persist:youtube",
+      "userAgent": ""
+    },
+    {
+      "id": "twitch",
+      "name": "Twitch",
+      "url": "https://www.twitch.tv/",
+      "icon": "assets/icons/twitch.svg",
+      "partition": "persist:twitch",
+      "userAgent": ""
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "url": "https://open.spotify.com/",
+      "icon": "assets/icons/spotify.svg",
+      "partition": "persist:spotify",
+      "userAgent": "",
+      "hidden": true
+    },
+    {
+      "id": "yandexmusic",
+      "name": "Яндекс.Музыка",
+      "url": "https://music.yandex.ru/",
+      "icon": "assets/icons/yandexmusic.svg",
+      "partition": "persist:yandexmusic",
+      "userAgent": ""
+    },
+    {
+      "id": "soundcloud",
+      "name": "SoundCloud",
+      "url": "https://soundcloud.com/",
+      "icon": "assets/icons/soundcloud.svg",
+      "partition": "persist:soundcloud",
+      "userAgent": ""
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "url": "https://discord.com/app",
+      "icon": "assets/icons/discord.svg",
+      "partition": "persist:discord",
+      "userAgent": ""
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "url": "https://claude.ai/",
+      "icon": "assets/icons/claude.svg",
+      "partition": "persist:claude",
+      "userAgent": ""
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "url": "https://chatgpt.com/",
+      "icon": "assets/icons/chatgpt.svg",
+      "partition": "persist:chatgpt",
+      "userAgent": ""
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "url": "https://gemini.google.com/app",
+      "icon": "assets/icons/gemini.svg",
+      "partition": "persist:gemini",
+      "userAgent": ""
+    },
+    {
+      "id": "grok",
+      "name": "Grok",
+      "url": "https://grok.com/",
+      "icon": "assets/icons/grok.svg",
+      "partition": "persist:grok",
+      "userAgent": ""
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "url": "https://chat.deepseek.com/",
+      "icon": "assets/icons/deepseek.svg",
+      "partition": "persist:deepseek",
+      "userAgent": ""
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "url": "https://www.perplexity.ai/",
+      "icon": "assets/icons/perplexity.svg",
+      "partition": "persist:perplexity",
+      "userAgent": ""
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen",
+      "url": "https://chat.qwen.ai/",
+      "icon": "assets/icons/qwen.svg",
+      "partition": "persist:qwen",
+      "userAgent": ""
+    }
+  ]
+}

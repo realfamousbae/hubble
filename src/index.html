@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <!-- CSP: renderer грузит только локальные ресурсы; контент сервисов — в изолированных webview. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline';" />
+  <title>Hubble</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Кастомная строка заголовка (frameless): drag-зона + кнопки окна -->
+    <header id="titlebar">
+      <div class="tb-left">
+        <img class="tb-logo" src="../assets/icons/app.png" alt="Hubble" />
+        <span class="tb-name">Hubble</span>
+      </div>
+      <div class="tb-right">
+        <button class="win-btn" id="win-min" title="Свернуть">─</button>
+        <button class="win-btn" id="win-max" title="Развернуть">▢</button>
+        <button class="win-btn win-close" id="win-close" title="Закрыть">✕</button>
+      </div>
+    </header>
+
+    <!-- Системный плеер: плавающая пилюля сверху, авто-определение играющего окна -->
+    <div id="player" class="player idle" aria-label="Плеер">
+      <button class="player-btn" data-pact="prev" title="Предыдущий">◀◀</button>
+      <button class="player-btn player-pp" data-pact="playpause" title="Плей/пауза">▶</button>
+      <button class="player-btn" data-pact="next" title="Следующий">▶▶</button>
+      <span class="player-vol">
+        <button class="player-btn vol-ico" data-pact="mute" title="Звук">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z" fill="currentColor"/>
+            <path class="vol-wave" d="M15 9.2a4 4 0 0 1 0 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input id="player-volume" class="vol-range" type="range" min="0" max="1" step="0.01" value="1" title="Громкость" />
+      </span>
+    </div>
+
+    <!-- Рабочая область: плитки-окна (тайлинг) + разделители -->
+    <div id="workspace">
+      <div id="tiles"></div>
+
+      <!-- Заглушка, когда не открыто ни одного окна -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-logo">🛰️</div>
+        <h1>Hubble</h1>
+        <p>Нажмите иконку на панели снизу, чтобы открыть сервис.</p>
+      </div>
+    </div>
+
+    <!-- Прозрачный щит: ловит мышь поверх webview во время перетаскивания разделителя -->
+    <div id="drag-shield" hidden></div>
+
+    <!-- Пикер источника демонстрации экрана (getDisplayMedia из webview, напр. Discord) -->
+    <div id="screen-picker" class="screen-picker" hidden>
+      <div class="sp-dialog" role="dialog" aria-label="Демонстрация экрана">
+        <div class="sp-title">Выберите, чем поделиться</div>
+        <div id="sp-list" class="sp-list"></div>
+        <label class="sp-audio" id="sp-audio-row" hidden>
+          <input type="checkbox" id="sp-audio" checked />
+          <span>Транслировать звук системы</span>
+        </label>
+        <div class="sp-actions">
+          <button id="sp-cancel" class="sp-btn">Отмена</button>
+          <button id="sp-share" class="sp-btn sp-primary" disabled>Поделиться</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Плавающая пилюля-таскбар -->
+    <nav id="taskbar" aria-label="Сервисы">
+      <div id="taskbar-apps" class="taskbar-apps"></div>
+      <div class="taskbar-sep"></div>
+      <button id="open-all" class="taskbar-btn taskbar-action" title="Открыть все и разложить">▦</button>
+    </nav>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

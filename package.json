@@ -1,0 +1,40 @@
+{
+  "name": "hubble",
+  "version": "0.1.0-alpha",
+  "description": "Hubble - десктопный хаб-агрегатор веб-сервисов на Electron (Telegram Web, погода, YouTube и др.) с сохранением сессий.",
+  "main": "src/main.js",
+  "author": "Hubble Authors <ogofuvoganiz03@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.hubble.app",
+    "productName": "Hubble",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icons/app.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}
